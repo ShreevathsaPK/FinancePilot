@@ -9,7 +9,7 @@
 
 ## Sprint 1
 
--   [ ] FastAPI running
+-   [*] FastAPI running
 -   [ ] Swagger verified
 -   [ ] Upload endpoint
 -   [ ] CSV validation
