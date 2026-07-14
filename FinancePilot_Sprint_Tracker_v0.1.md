@@ -10,13 +10,13 @@
 ## Sprint 1
 
 -   [*] FastAPI running
--   [ ] Swagger verified
--   [ ] Upload endpoint
--   [ ] CSV validation
--   [ ] CSV parser
--   [ ] SQLite integration
--   [ ] Unit test parser
--   [ ] Commit & Push
+-   [*] Swagger verified
+-   [*] Upload endpoint
+-   [*] CSV validation
+-   [*] CSV parser
+-   [*] SQLite integration
+-   [*] Unit test parser
+-   [*] Commit & Push
 
 ## Sprint 2
 

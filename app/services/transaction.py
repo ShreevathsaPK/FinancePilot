@@ -40,8 +40,9 @@ def parse_monefy_csv(file_bytes: bytes) -> List[dict]:
 		amount_raw = normalized.get("amount", "0")
 		amount = 0.0
 		if amount_raw:
-			# Remove thousand separators and convert to float.
-			amount = float(amount_raw.replace(",", ""))
+			# Normalize quoted or comma-formatted amounts like "-12,500".
+			amount_text = str(amount_raw).strip().replace("\"", "")
+			amount = float(amount_text.replace(",", ""))
 
 		transactions.append(
 			{

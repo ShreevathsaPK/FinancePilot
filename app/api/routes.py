@@ -4,17 +4,20 @@ This module defines the HTTP endpoints used by the FastAPI app. We keep
 route implementations thin by delegating parsing and persistence to the
 `app.services.transaction` helpers.
 """
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from typing import List
+
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.services.transaction import parse_monefy_csv, save_transactions
 from app.database.models import Transaction
+from app.schemas.transaction import TransactionOut, UploadResponse
 
 router = APIRouter()
 
 
-@router.post("/upload", summary="Upload Monefy CSV")
+@router.post("/upload", summary="Upload Monefy CSV", response_model=UploadResponse)
 async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
 	"""Accept a CSV upload, parse it, and persist transactions.
 
@@ -42,24 +45,16 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
 	return {"status": "success", "created": total}
 
 
-@router.get("/transactions", summary="List transactions")
-def list_transactions(db: Session = Depends(get_db)):
-	"""Return all transactions ordered by newest first.
+@router.get("/transactions", summary="List transactions", response_model=List[TransactionOut])
+def list_transactions(
+	db: Session = Depends(get_db),
+	skip: int = Query(0, ge=0, description="Number of rows to skip"),
+	limit: int = Query(50, ge=1, le=200, description="Maximum number of rows to return"),
+):
+	"""Return transactions in pages so Swagger and clients load quickly.
 
-	For simplicity the endpoint returns a JSON array of transactions. In a
-	production API you'd typically add pagination, filtering, and
-	serialization via Pydantic models.
+	The endpoint defaults to returning the newest 50 transactions. You can
+	use `skip` and `limit` to request later pages.
 	"""
-	results = db.query(Transaction).order_by(Transaction.id.desc()).all()
-	return [
-		{
-			"id": tx.id,
-			"date": tx.date,
-			"description": tx.description,
-			"category": tx.category,
-			"amount": tx.amount,
-			"currency": tx.currency,
-			"created_at": tx.created_at.isoformat(),
-		}
-		for tx in results
-	]
+	results = db.query(Transaction).order_by(Transaction.id.desc()).offset(skip).limit(limit).all()
+	return results
