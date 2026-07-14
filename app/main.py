@@ -8,11 +8,12 @@ database tables are created on startup. Keeping the app object in
 from fastapi import FastAPI
 
 from app.api.routes import router as api_router
+from app.config import APP_TITLE, APP_VERSION
 from app.database.connection import engine
 from app.database.models import Base
 
 
-app = FastAPI(title="FinancePilot", version="0.1.0")
+app = FastAPI(title=APP_TITLE, version=APP_VERSION)
 
 # Mount the API router under /api so all endpoints are namespaced.
 app.include_router(api_router, prefix="/api")
